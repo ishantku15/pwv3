@@ -1,0 +1,18 @@
+{
+  "rewrites": [
+    { "source": "/pw-api/(.*)", "destination": "https://api.penpencil.co/$1" },
+    { "source": "/media/(.*)", "destination": "https://stream.testuk.org/media/$1" },
+    { "source": "/batches", "destination": "/" }
+  ],
+  "cleanUrls": true,
+  "headers": [
+    {
+      "source": "/api/(.*)",
+      "headers": [
+        { "key": "Access-Control-Allow-Origin", "value": "*" },
+        { "key": "Access-Control-Allow-Methods", "value": "GET,POST,OPTIONS" },
+        { "key": "Access-Control-Allow-Headers", "value": "Content-Type" }
+      ]
+    }
+  ]
+}

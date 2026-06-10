@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>Get Access â€” Mod Galaxy</title>
+<link rel="icon" type="image/png" href="/static/site_logo.png">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+body,html{min-height:100vh;font-family:'Inter',sans-serif;background:#0a0e1a;color:#e2e8f0;overflow-x:hidden}
+body{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:20px;position:relative}
+body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellipse at 50% 0%,rgba(99,102,241,0.12) 0%,transparent 60%),radial-gradient(ellipse at 80% 80%,rgba(139,92,246,0.08) 0%,transparent 50%);pointer-events:none;z-index:0}
+
+.brand{display:flex;align-items:center;gap:10px;margin-bottom:32px;position:relative;z-index:1}
+.brand img{width:40px;height:40px;border-radius:10px;box-shadow:0 4px 16px rgba(99,102,241,0.3)}
+.brand-name{font-size:22px;font-weight:900;background:linear-gradient(135deg,#818cf8,#c084fc);-webkit-background-clip:text;-webkit-text-fill-color:transparent;letter-spacing:0.5px}
+
+.card{position:relative;z-index:1;background:rgba(30,41,59,0.6);backdrop-filter:blur(24px);border:1px solid rgba(99,102,241,0.2);border-radius:24px;padding:40px 32px;max-width:420px;width:100%;box-shadow:0 24px 64px rgba(0,0,0,0.4),0 0 0 1px rgba(99,102,241,0.1) inset;overflow:hidden}
+.card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,#6366f1,#8b5cf6,#a78bfa,#6366f1);background-size:200% 100%;animation:shimmer-bar 3s linear infinite}
+@keyframes shimmer-bar{0%{background-position:200% 0}100%{background-position:-200% 0}}
+
+.step{display:none;flex-direction:column;align-items:center;text-align:center;gap:20px;animation:fadeUp 0.4s cubic-bezier(0.34,1.56,0.64,1)}
+.step.active{display:flex}
+@keyframes fadeUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+
+.step-icon{font-size:56px;filter:drop-shadow(0 4px 12px rgba(99,102,241,0.3))}
+.step-title{font-size:24px;font-weight:800;color:#fff;line-height:1.3}
+.step-desc{font-size:14px;color:#94a3b8;line-height:1.6;max-width:320px}
+
+.btn{width:100%;padding:16px 24px;border:none;border-radius:14px;font-size:15px;font-weight:700;cursor:pointer;transition:all 0.25s cubic-bezier(0.34,1.56,0.64,1);text-transform:uppercase;letter-spacing:0.8px;position:relative;overflow:hidden}
+.btn:active{transform:scale(0.96)}
+.btn-primary{background:linear-gradient(135deg,#6366f1,#8b5cf6);color:#fff;box-shadow:0 8px 24px rgba(99,102,241,0.35)}
+.btn-primary:hover{box-shadow:0 12px 32px rgba(99,102,241,0.5);transform:translateY(-2px)}
+.btn-primary::after{content:'';position:absolute;inset:0;background:linear-gradient(135deg,rgba(255,255,255,0.15),transparent);opacity:0;transition:opacity 0.3s}
+.btn-primary:hover::after{opacity:1}
+.btn-ghost{background:transparent;color:#818cf8;border:2px solid rgba(99,102,241,0.3);margin-top:-4px}
+.btn-ghost:hover{border-color:#6366f1;background:rgba(99,102,241,0.08)}
+.btn-success{background:linear-gradient(135deg,#059669,#10b981);color:#fff;box-shadow:0 8px 24px rgba(16,185,129,0.3)}
+
+.input-wrap{width:100%;position:relative}
+.code-input{width:100%;padding:16px 20px;background:rgba(15,23,42,0.8);border:2px solid rgba(99,102,241,0.3);border-radius:14px;font-size:18px;font-weight:700;color:#fff;text-align:center;letter-spacing:4px;font-family:'Inter',monospace;transition:border-color 0.2s,box-shadow 0.2s}
+.code-input:focus{outline:none;border-color:#6366f1;box-shadow:0 0 0 4px rgba(99,102,241,0.15)}
+.code-input::placeholder{color:#475569;letter-spacing:2px;font-size:14px}
+
+.error-msg{display:none;background:rgba(239,68,68,0.12);border:1px solid rgba(239,68,68,0.3);border-radius:10px;padding:10px 16px;font-size:13px;font-weight:600;color:#f87171;width:100%;text-align:center;animation:shake 0.4s}
+.error-msg.show{display:block}
+@keyframes shake{0%,100%{transform:translateX(0)}20%,60%{transform:translateX(-6px)}40%,80%{transform:translateX(6px)}}
+
+.timer-display{display:flex;flex-direction:column;align-items:center;gap:8px}
+.timer-value{font-size:48px;font-weight:900;background:linear-gradient(135deg,#34d399,#6ee7b7);-webkit-background-clip:text;-webkit-text-fill-color:transparent;font-variant-numeric:tabular-nums;letter-spacing:2px}
+.timer-label{font-size:13px;color:#94a3b8;font-weight:600;text-transform:uppercase;letter-spacing:1px}
+
+.status-pill{display:inline-flex;align-items:center;gap:6px;padding:6px 14px;border-radius:20px;font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:0.5px}
+.status-active{background:rgba(52,211,153,0.12);border:1px solid rgba(52,211,153,0.3);color:#34d399}
+.status-active::before{content:'';width:8px;height:8px;border-radius:50%;background:#34d399;animation:pulse-dot 2s infinite}
+@keyframes pulse-dot{0%,100%{opacity:1;transform:scale(1)}50%{opacity:0.5;transform:scale(0.8)}}
+
+.divider{width:100%;height:1px;background:linear-gradient(90deg,transparent,rgba(99,102,241,0.3),transparent)}
+
+.loading-spinner{width:24px;height:24px;border:3px solid rgba(255,255,255,0.2);border-top:3px solid #fff;border-radius:50%;animation:spin 0.8s linear infinite;display:none}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+.footer-text{position:relative;z-index:1;margin-top:24px;font-size:12px;color:#475569;text-align:center}
+.footer-text a{color:#818cf8;text-decoration:none;font-weight:600}
+
+.particles{position:fixed;inset:0;pointer-events:none;z-index:0;overflow:hidden}
+.particle{position:absolute;width:2px;height:2px;background:#6366f1;border-radius:50%;opacity:0.3;animation:float-up linear infinite}
+@keyframes float-up{0%{transform:translateY(100vh) scale(0);opacity:0}10%{opacity:0.4}90%{opacity:0.4}100%{transform:translateY(-10vh) scale(1);opacity:0}}
+</style>
+</head>
+<body>
+
+<div class="particles" id="particles"></div>
+
+<div class="brand">
+    <img src="/static/site_logo.png" alt="Mod Galaxy" onerror="this.style.display='none'">
+    <span class="brand-name">Mod Galaxy</span>
+</div>
+
+<div class="card">
+    <!-- STEP 1: Get Access -->
+    <div class="step active" id="step1">
+        <div class="step-icon">ðŸ”</div>
+        <div class="step-title">Unlock Full Access</div>
+        <div class="step-desc">Get a free 24-hour access code to unlock all premium content on Mod Galaxy.</div>
+        <button class="btn btn-primary" id="btn-get-code" onclick="handleGetCode()">
+            <span id="btn-get-text">âš¡ Get Access Code</span>
+            <div class="loading-spinner" id="get-spinner"></div>
+        </button>
+        <button class="btn btn-ghost" onclick="showStep(2)">ðŸ”‘ I already have a code</button>
+    </div>
+
+    <!-- STEP 2: Enter Code -->
+    <div class="step" id="step2">
+        <div class="step-icon">ðŸ”‘</div>
+        <div class="step-title">Enter Access Code</div>
+        <div class="step-desc">Paste your access code below to activate 24 hours of premium access.</div>
+        <div class="input-wrap">
+            <input type="text" class="code-input" id="code-input" placeholder="ASM-XXXXXX" maxlength="20" autocomplete="off" spellcheck="false">
+        </div>
+        <div class="error-msg" id="error-msg"></div>
+        <button class="btn btn-primary" onclick="handleVerify()">âœ… Verify & Activate</button>
+        <div class="divider"></div>
+        <button class="btn btn-ghost" onclick="showStep(1)" style="font-size:13px">â† Back</button>
+    </div>
+
+    <!-- STEP 3: Success -->
+    <div class="step" id="step3">
+        <div class="step-icon">ðŸŽ‰</div>
+        <span class="status-pill status-active">Access Active</span>
+        <div class="step-title">You're All Set!</div>
+        <div class="timer-display">
+            <div class="timer-value" id="countdown">23:59:59</div>
+            <div class="timer-label">Time Remaining</div>
+        </div>
+        <button class="btn btn-success" onclick="window.location.href='/'">ðŸš€ Start Learning</button>
+    </div>
+</div>
+
+<div class="footer-text">
+    <a href="/">pw.modgalaxy.in</a> â€” Free Educational Streaming
+</div>
+
+<script>
+(function(){
+    // â”€â”€â”€ Particle background â”€â”€â”€
+    const pc=document.getElementById('particles');
+    for(let i=0;i<30;i++){
+        const p=document.createElement('div');
+        p.className='particle';
+        p.style.left=Math.random()*100+'%';
+        p.style.animationDuration=(8+Math.random()*12)+'s';
+        p.style.animationDelay=Math.random()*8+'s';
+        p.style.width=p.style.height=(1+Math.random()*3)+'px';
+        pc.appendChild(p);
+    }
+})();
+
+const MASTER_KEYS=['ADMIN2026','VIPPASS','ASMULTI99','MASTERKEY'];
+const LS_PENDING='_asm_pending_auth';
+const LS_EXPIRY='asm_access_expiry';
+const BRAND_PREFIX='ASM-';
+const SITE_ORIGIN=location.origin;
+
+// â”€â”€â”€ On load: check URL for returning code, or check active session â”€â”€â”€
+(function init(){
+    const qs=new URLSearchParams(location.search);
+    const urlCode=qs.get('code');
+
+    // Check if already has active access
+    const expiry=localStorage.getItem(LS_EXPIRY);
+    if(expiry && Date.now()<parseInt(expiry)){
+        showStep(3);
+        startCountdown(parseInt(expiry));
+        return;
+    }
+
+    // If returning from VPLINK with a code
+    if(urlCode){
+        showStep(2);
+        document.getElementById('code-input').value=urlCode;
+        // Clean URL
+        history.replaceState(null,'',location.pathname);
+        return;
+    }
+
+    showStep(1);
+})();
+
+function showStep(n){
+    document.querySelectorAll('.step').forEach(s=>s.classList.remove('active'));
+    const el=document.getElementById('step'+n);
+    if(el)el.classList.add('active');
+    hideError();
+}
+
+function showError(msg){
+    const el=document.getElementById('error-msg');
+    el.textContent=msg;
+    el.classList.add('show');
+}
+function hideError(){
+    document.getElementById('error-msg').classList.remove('show');
+}
+
+function generateCode(){
+    const chars='ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+    let code='';
+    for(let i=0;i<6;i++) code+=chars[Math.floor(Math.random()*chars.length)];
+    return BRAND_PREFIX+code;
+}
+
+async function handleGetCode(){
+    const btn=document.getElementById('btn-get-code');
+    const txt=document.getElementById('btn-get-text');
+    const spin=document.getElementById('get-spinner');
+
+    btn.disabled=true;
+    txt.style.display='none';
+    spin.style.display='inline-block';
+
+    const code=generateCode();
+
+    // IMMEDIATELY save to localStorage as device fingerprint
+    localStorage.setItem(LS_PENDING,code);
+
+    const returnUrl=SITE_ORIGIN+'/get-access?code='+encodeURIComponent(code);
+
+    try{
+        const res=await fetch('/api/vplink?url='+encodeURIComponent(returnUrl));
+        const data=await res.json();
+
+        // VPLINK API typically returns { shortenedUrl: "..." } or { status: "success", shortenedUrl: "..." }
+        const shortUrl=data.shortenedUrl||data.short_url||data.shorturl||data.data;
+
+        if(shortUrl && typeof shortUrl==='string' && shortUrl.startsWith('http')){
+            window.location.href=shortUrl;
+        } else {
+            // Fallback: if VPLINK fails, go direct (no revenue but user isn't stuck)
+            console.warn('VPLINK response:',data);
+            window.location.href=returnUrl;
+        }
+    }catch(err){
+        console.error('VPLINK proxy error:',err);
+        // Fallback direct
+        window.location.href=returnUrl;
+    }finally{
+        btn.disabled=false;
+        txt.style.display='inline';
+        spin.style.display='none';
+    }
+}
+
+function handleVerify(){
+    hideError();
+    const input=document.getElementById('code-input').value.trim().toUpperCase();
+
+    if(!input){
+        showError('Please enter an access code.');
+        return;
+    }
+
+    // Check master keys first (bypass fingerprint check)
+    if(MASTER_KEYS.includes(input)){
+        grantAccess();
+        return;
+    }
+
+    // Check against localStorage fingerprint
+    const pending=localStorage.getItem(LS_PENDING);
+
+    if(!pending){
+        showError('No pending code found on this device. Please generate a new code first.');
+        return;
+    }
+
+    if(input!==pending){
+        showError('Code mismatch. This code was generated on a different device.');
+        return;
+    }
+
+    // Match! Grant access
+    grantAccess();
+}
+
+function grantAccess(){
+    // Clean up pending code
+    localStorage.removeItem(LS_PENDING);
+
+    // Set 24-hour expiry
+    const expiry=Date.now()+(24*60*60*1000);
+    localStorage.setItem(LS_EXPIRY,String(expiry));
+
+    showStep(3);
+    startCountdown(expiry);
+}
+
+function startCountdown(expiry){
+    function update(){
+        const remaining=expiry-Date.now();
+        if(remaining<=0){
+            localStorage.removeItem(LS_EXPIRY);
+            showStep(1);
+            return;
+        }
+        const h=Math.floor(remaining/3600000);
+        const m=Math.floor((remaining%3600000)/60000);
+        const s=Math.floor((remaining%60000)/1000);
+        document.getElementById('countdown').textContent=
+            String(h).padStart(2,'0')+':'+String(m).padStart(2,'0')+':'+String(s).padStart(2,'0');
+        requestAnimationFrame(update);
+    }
+    update();
+}
+
+// Auto-focus code input when step 2 is shown
+const observer=new MutationObserver(()=>{
+    if(document.getElementById('step2').classList.contains('active')){
+        setTimeout(()=>document.getElementById('code-input').focus(),100);
+    }
+});
+observer.observe(document.getElementById('step2'),{attributes:true,attributeFilter:['class']});
+
+// Enter key on input
+document.getElementById('code-input').addEventListener('keypress',e=>{
+    if(e.key==='Enter')handleVerify();
+});
+</script>
+</body>
+</html>

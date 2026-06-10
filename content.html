@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>Content — Mod Galaxy</title>
+<link rel="icon" type="image/png" href="/static/site_logo.png">
+<style>
+*{margin:0;padding:0;box-sizing:border-box;outline:none;-webkit-tap-highlight-color:transparent;user-select:none}
+body,html{min-height:100%;font-family:Inter,sans-serif;background:#0f172a;color:#e2e8f0}
+.back-section{position:fixed;top:0;left:0;right:0;height:50px;background:rgba(15,23,42,0.97);display:flex;align-items:center;z-index:1300;border-bottom:1px solid rgba(30,41,59,0.5);padding:0 8px}
+.back-section::after{content:'';position:absolute;bottom:-1px;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,rgba(99,102,241,0.5),transparent)}
+.back-link{display:inline-flex;align-items:center;gap:8px;font-weight:700;color:#fff;border:none;background:transparent;cursor:pointer;padding:8px 10px;border-radius:8px;transition:transform 0.1s;text-decoration:none}
+.back-link:active{transform:scale(0.95)}
+.nav-icon{display:flex;align-items:center;justify-content:center;flex-shrink:0;width:clamp(18px,4.5vw,22px);height:clamp(18px,4.5vw,22px)}
+.nav-icon svg{width:clamp(18px,4.5vw,22px);height:clamp(18px,4.5vw,22px);stroke:#6366f1;stroke-width:2.5;fill:none;stroke-linecap:round;stroke-linejoin:round;display:block}
+.back-label{font-size:clamp(14px,3.8vw,16px);font-weight:700;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:calc(100vw - 80px)}
+.container{max-width:900px;margin:50px auto 0;padding:16px 12px 40px}
+.chapters-list{list-style:none;padding:0;display:grid;gap:14px}
+.chapter-item{background:#1e293b;border-radius:14px;border:2px solid rgba(99,102,241,0.3);overflow:hidden;transition:transform 0.1s}
+.chapter-item:active{transform:scale(0.97)}
+.chapter-link{display:flex;justify-content:space-between;align-items:center;text-decoration:none;color:#e2e8f0;padding:clamp(16px,4vw,22px) clamp(16px,4vw,24px);gap:10px}
+.chapter-content{flex:1;min-width:0}
+.chapter-name{font-size:clamp(13px,3.5vw,17px);font-weight:bold;color:#fff;margin-bottom:6px;line-height:1.35}
+.chapter-counts{font-size:clamp(11px,2.8vw,14px);color:#94a3b8}
+.chapter-arrow{display:flex;align-items:center;justify-content:center;flex-shrink:0;width:22px;height:22px}
+.chapter-arrow svg{width:22px;height:22px;stroke:#6366f1;stroke-width:2.5;fill:none;stroke-linecap:round;stroke-linejoin:round;display:block}
+.skel{background:linear-gradient(90deg,#1e293b 25%,#334155 50%,#1e293b 75%);background-size:200% 100%;animation:shimmer 1.4s infinite;border-radius:14px}
+@keyframes shimmer{0%{background-position:200% 0}100%{background-position:-200% 0}}
+.skel-ch{height:80px;margin-bottom:14px}
+.load-skels{display:none}
+.load-skels .skel{height:80px;margin-bottom:14px}
+</style>
+</head>
+<body>
+<div class="back-section">
+    <button class="back-link" onclick="history.back()">
+        <span class="nav-icon"><svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg></span>
+        <span class="back-label" id="back-label">Subjects</span>
+    </button>
+</div>
+
+<div class="container">
+    <ul class="chapters-list" id="ch-list"></ul>
+    <div class="load-skels" id="load-skels"></div>
+</div>
+
+<script>
+(function(){var e=localStorage.getItem('asm_access_expiry');if(!e||Date.now()>parseInt(e)){localStorage.removeItem('asm_access_expiry');window.location.href='/get-access';return;}})();
+
+const QS=new URLSearchParams(location.search);
+const BATCH_ID=QS.get('batchId')||'',SUBJECT_ID=QS.get('subjectId')||'';
+const BATCH_NAME=QS.get('batchName')||'',SUBJECT_NAME=QS.get('subjectName')||'';
+if(!BATCH_ID||!SUBJECT_ID)location.href='/';
+document.getElementById('back-label').textContent=SUBJECT_NAME||'Subjects';
+document.title = (SUBJECT_NAME||'Content')+' — Mod Galaxy';
+
+function esc(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;')}
+function ep(v){return encodeURIComponent(v||'')}
+
+const PW_HDR={"Accept-Encoding": "gzip", "User-Agent": "Dalvik/2.1.0 (Linux; U; Android 11; SM-A707F Build/RP1A.200720.012)", "authorization": "Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJleHAiOjE3ODE2Mzc3NjAuNzMsImRhdGEiOnsiX2lkIjoiNjdjNDI0NDFhMzY1YjFmM2YzNzc2MjEwIiwidXNlcm5hbWUiOiI5MDU0MDEzNDkyIiwiZmlyc3ROYW1lIjoiTWsgTW9taW4iLCJsYXN0TmFtZSI6IiIsIm9yZ2FuaXphdGlvbiI6eyJfaWQiOiI1ZWIzOTNlZTk1ZmFiNzQ2OGE3OWQxODkiLCJ3ZWJzaXRlIjoicGh5c2ljc3dhbGxhaC5jb20iLCJuYW1lIjoiUGh5c2ljc3dhbGxhaCJ9LCJlbWFpbCI6Ik1LTUtAR01BSUwuQ09NIiwicm9sZXMiOlsiNWIyN2JkOTY1ODQyZjk1MGE3NzhjNmVmIl0sImNvdW50cnlHcm91cCI6IklOIiwidHlwZSI6IlVTRVIifSwianRpIjoiUGhkZ1FjMF9SbmFCSXh2andFVVhLd182N2M0MjQ0MWEzNjViMWYzZjM3NzYyMTAiLCJpYXQiOjE3ODEwMzI5NjB9.6EVeizpD7Gq-4lsEU7Quz95p3GAlYOLeu_gl_7bUnm0", "client-id": "ADMIN", "client-type": "MOBILE", "client-version": "538", "content-type": "application/json", "device-meta": "{\"APP_VERSION\":\"538\",\"APP_VERSION_NAME\":\"15.32.0\",\"DEVICE_MAKE\":\"Samsung\",\"DEVICE_MODEL\":\"SM-A707F\",\"OS_VERSION\":\"11\",\"PACKAGE_NAME\":\"xyz.penpencil.physicswala\",\"network\":\"wifi_data\",\"carrier\":\"UNDEFINED\"}", "randomid": "3d3b49f068728fa3", "referer": "https://android.pw.live"};
+async function pw(url){return fetch(url,{headers:PW_HDR}).then(r=>r.json());}
+
+let page=1,loading=false,done=false;
+const list=document.getElementById('ch-list');
+
+function skelCount(){return Math.max(3,Math.floor((window.innerHeight-100)/94));}
+function showSkels(container){const n=skelCount();container.innerHTML=Array(n).fill('<div class="skel skel-ch"></div>').join('');}
+async function loadPage(){
+    if(loading||done)return; loading=true;
+    const lsk=document.getElementById('load-skels');
+    if(page===1){showSkels(list);}
+    else{showSkels(lsk);lsk.style.display='block';}
+    try{
+        const data=await pw(`/pw-api/v2/batches/${BATCH_ID}/subject/${SUBJECT_ID}/topics?page=${page}`);
+        lsk.style.display='none';lsk.innerHTML='';
+        if(page===1)list.innerHTML='';
+        if(!data.success||!data.data?.length){
+            done=true;
+            if(page===1)list.innerHTML='<li style="text-align:center;padding:60px;color:#64748b">No chapters found</li>';
+            return;
+        }
+        data.data.forEach(ch=>{
+            const li=document.createElement('li'); li.className='chapter-item';
+            li.innerHTML=`<a class="chapter-link" href="/stream?batchId=${ep(BATCH_ID)}&subjectId=${ep(SUBJECT_ID)}&chapterId=${ep(ch._id)}&batchName=${ep(BATCH_NAME)}&subjectName=${ep(SUBJECT_NAME)}&chapterName=${ep(ch.name)}&section=videos">
+                <div class="chapter-content"><div class="chapter-name">${esc(ch.name)}</div><div class="chapter-counts">${ch.videos||0} Videos | ${ch.exercises||0} Exercises | ${ch.notes||0} Notes</div></div>
+                <span class="chapter-arrow"><svg viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg></span></a>`;
+            list.appendChild(li);
+        });
+        if(data.data.length<10)done=true;
+        else page++;
+    }catch{document.getElementById('load-skels').style.display='none';document.getElementById('load-skels').innerHTML='';if(page===1)list.innerHTML='<li style="text-align:center;padding:60px;color:#64748b">Failed to load</li>';}
+    finally{loading=false;}
+}
+
+window.addEventListener('scroll',()=>{if(window.scrollY+window.innerHeight>=document.documentElement.scrollHeight-150)loadPage();});
+loadPage();
+</script>
+</body>
+</html>

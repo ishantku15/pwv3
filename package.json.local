@@ -1,0 +1,13 @@
+{
+  "name": "as-multiverse",
+  "version": "1.0.0",
+  "description": "As Multiverse — Educational Streaming Platform",
+  "main": "server.js",
+  "scripts": {
+    "dev": "node server.js",
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "express": "^4.21.0"
+  }
+}

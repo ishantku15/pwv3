@@ -1,0 +1,1623 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>Batches — Mod Galaxy</title>
+    <link rel="icon" type="image/png" href="/static/site_logo.png">
+    <link rel="manifest" id="manifest-placeholder">
+    <meta name="application-name" content="Mod Galaxy">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Mod Galaxy">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="theme-color" content="#0f172a">
+    <link rel="apple-touch-icon" href="/static/site_logo.png">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            outline: none;
+            -webkit-tap-highlight-color: transparent;
+            user-select: none;
+        }
+
+        body, html {
+            height: 100%;
+            font-family: Inter, sans-serif;
+            background: #0f172a;
+            color: #e2e8f0;
+            overflow: hidden;
+        }
+
+        .header {
+            position: fixed;
+            top: 0; left: 0; right: 0;
+            height: 56px;
+            background: #0f172a;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            z-index: 1400;
+            border-bottom: 1px solid rgba(99, 102, 241, 0.25);
+            padding: 0 16px;
+        }
+
+        .header::after {
+            content: "";
+            position: absolute;
+            bottom: 0; left: 0; right: 0;
+            height: 2px;
+            background: linear-gradient(90deg, transparent 0%, #6366f1 50%, transparent 100%);
+        }
+
+        .site-brand {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-weight: 800;
+            font-size: 18px;
+            color: #f1f5f9;
+            letter-spacing: 0.3px;
+        }
+
+        .site-brand .brand-icon {
+            width: 28px;
+            height: 28px;
+            background: linear-gradient(135deg, #6366f1, #8b5cf6);
+            border-radius: 7px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            font-weight: 900;
+            color: #fff;
+            flex-shrink: 0;
+        }
+
+        .site-brand .brand-name {
+            color: #f1f5f9;
+        }
+
+
+        .countdown-timer {
+            display: none;
+            align-items: center;
+            gap: 5px;
+            background: rgba(239, 68, 68, 0.1);
+            border: 1px solid rgba(239, 68, 68, 0.3);
+            border-radius: 8px;
+            padding: 5px 10px;
+            font-size: 12px;
+            font-weight: 700;
+            color: #f87171;
+            white-space: nowrap;
+            cursor: pointer;
+            flex-shrink: 0;
+        }
+
+        .countdown-timer.show {
+            display: flex;
+        }
+
+        .search-section {
+            position: fixed;
+            top: 50px; left: 0; right: 0;
+            z-index: 1350;
+            background: rgba(15, 23, 42, 0.95);
+            backdrop-filter: blur(15px);
+            border-bottom: 1px solid rgba(30, 41, 59, 0.5);
+            padding: 15px 20px;
+        }
+
+        .search-container {
+            position: relative;
+        }
+
+        .search-box {
+            width: 100%;
+            padding: 12px 50px 12px 20px;
+            border: 2px solid #334155;
+            border-left: 4px solid #6366f1;
+            border-radius: 25px;
+            font-size: 16px;
+            background: #1e293b;
+            color: #e2e8f0;
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+
+        .search-box:focus {
+            border-color: #6366f1;
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.2);
+        }
+
+        .search-box::placeholder {
+            color: #64748b;
+        }
+
+        .search-btn {
+            position: absolute;
+            right: 5px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: #6366f1;
+            border: none;
+            border-radius: 20px;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            color: white;
+            font-size: 16px;
+        }
+
+.autocomplete-dropdown {
+            position: absolute;
+            top: 100%; left: 0; right: 0;
+            background: #1e293b;
+            border: 2px solid #334155;
+            border-top: none;
+            border-radius: 0 0 15px 15px;
+            max-height: 420px;
+            overflow-y: auto;
+            z-index: 1000;
+            display: none;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+        }
+
+        .autocomplete-dropdown.show {
+            display: block;
+        }
+
+        .autocomplete-item {
+            padding: 10px 14px;
+            cursor: pointer;
+            transition: background 0.2s;
+            border-bottom: 1px solid rgba(51, 65, 85, 0.3);
+            display: flex;
+            align-items: flex-start;
+            gap: 14px;
+        }
+
+        .autocomplete-item:hover,
+        .autocomplete-item.highlighted {
+            background: rgba(99, 102, 241, 0.15);
+            border-left: 4px solid #6366f1;
+        }
+
+        .autocomplete-item:last-child {
+            border-bottom: none;
+        }
+
+        .autocomplete-thumb-wrap {
+            flex-shrink: 0;
+            border-radius: 8px;
+            overflow: hidden;
+            line-height: 0;
+        }
+
+        .autocomplete-thumb {
+            height: 56px;
+            width: auto;
+            display: block;
+            border-radius: 8px;
+        }
+
+        .autocomplete-info {
+            display: flex;
+            flex-direction: column;
+            gap: 3px;
+            flex: 1;
+            min-width: 0;
+        }
+
+        .autocomplete-name {
+            color: #e2e8f0;
+            font-size: 14px;
+            font-weight: 600;
+            white-space: normal;
+            word-break: break-word;
+            line-height: 1.4;
+        }
+
+        .autocomplete-meta {
+            color: #64748b;
+            font-size: 12px;
+            white-space: normal;
+            word-break: break-word;
+            line-height: 1.4;
+        }
+
+        .autocomplete-highlight {
+            background: rgba(99, 102, 241, 0.3);
+            color: #818cf8;
+            font-weight: 700;
+            border-radius: 2px;
+        }
+
+        .tab-navigation {
+            position: fixed;
+            top: 120px; left: 0; right: 0;
+            z-index: 1300;
+            padding: 0 20px;
+        }
+
+        .tab-nav {
+            display: flex;
+            gap: 15px;
+            height: 50px;
+            background: #1e293b;
+            border-radius: 15px;
+            border: 1px solid #334155;
+        }
+
+        .tab-btn {
+            flex: 1;
+            height: 100%;
+            background: transparent;
+            border: none;
+            font-weight: 700;
+            font-size: 18px;
+            cursor: pointer;
+            transition: all 0.2s;
+            color: #64748b;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .tab-btn:first-child {
+            border-radius: 15px 0 0 15px;
+        }
+
+        .tab-btn:last-child {
+            border-radius: 0 15px 15px 0;
+        }
+
+        .tab-btn.active {
+            color: white;
+            background: #6366f1;
+        }
+
+        .tab-btn:hover:not(.active) {
+            background: rgba(99, 102, 241, 0.15);
+            color: #6366f1;
+        }
+
+        .content {
+            position: absolute;
+            top: 190px; left: 0; right: 0; bottom: 0;
+            overflow-y: auto;
+            padding: 25px;
+        }
+
+        .batches-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            gap: 25px;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .batch {
+            background: #1e293b;
+            border-radius: 18px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+            transition: transform 0.3s ease;
+            cursor: pointer;
+            border: 1px solid #334155;
+            border-left: 5px solid #6366f1;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+        }
+
+        .batch.mahapack {
+            border-left-color: #f59e0b;
+        }
+
+        .batch:hover {
+            transform: translateY(-8px);
+        }
+
+        .mahapack-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            background: rgba(245, 158, 11, 0.15);
+            border: 1px solid rgba(245, 158, 11, 0.4);
+
+color: #f59e0b;
+            font-size: 11px;
+            font-weight: 700;
+            padding: 3px 8px;
+            border-radius: 6px;
+            margin-bottom: 10px;
+            width: fit-content;
+        }
+
+        .batch-name {
+            font-size: 18px;
+            font-weight: 800;
+            color: #e2e8f0;
+            line-height: 1.4;
+            margin-bottom: 15px;
+        }
+
+        .batch-thumbnail {
+            position: relative;
+            width: 100%;
+            height: 220px;
+            overflow: hidden;
+            border-radius: 12px;
+            margin-bottom: 15px;
+        }
+
+        .batch-thumbnail img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+        }
+
+        .favorite-btn {
+            position: absolute;
+            top: 15px; right: 15px;
+            width: 36px; height: 36px;
+            background: rgba(30, 41, 59, 0.95);
+            border: 1px solid #334155;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            backdrop-filter: blur(10px);
+            transition: all 0.2s;
+            z-index: 10;
+        }
+
+        .favorite-btn:hover {
+            background: #334155;
+            transform: scale(1.15);
+        }
+
+        .favorite-btn.favorited {
+            background: #ef4444;
+            color: white;
+            border-color: #ef4444;
+        }
+
+        .batch-info {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            flex: 1;
+        }
+
+        .batch-language::before { content: "🗣️ "; }
+        .batch-byname::before   { content: "👨‍🎓 "; }
+
+        .batch-language,
+        .batch-byname {
+            font-size: 13px;
+            color: #94a3b8;
+        }
+
+        .batch-dates {
+            display: flex;
+            justify-content: space-between;
+            font-size: 13px;
+            color: #94a3b8;
+        }
+
+        .date-item::before { content: "🗓️ "; }
+
+        .batch-price {
+            font-size: 13px;
+            color: #94a3b8;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .batch-price-original {
+            text-decoration: line-through;
+            color: #64748b;
+        }
+
+        .batch-price-free {
+            color: #22c55e;
+            font-weight: 700;
+        }
+
+        .explore-btn {
+            background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%);
+            border: none;
+            border-radius: 12px;
+            padding: 12px 30px;
+            font-size: 14px;
+            font-weight: 700;
+            color: white;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-top: auto;
+        }
+
+        .batch.mahapack .explore-btn {
+            background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+        }
+
+        .explore-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
+        }
+
+        .skeleton-card {
+            background: #1e293b;
+            border-radius: 18px;
+            padding: 20px;
+            border: 1px solid #334155;
+            border-left: 5px solid #6366f1;
+            animation: pulse 1.5s ease-in-out infinite;
+        }
+
+        .skeleton-title {
+            height: 24px;
+            background: #334155;
+            border-radius: 8px;
+            margin-bottom: 15px;
+        }
+
+        .skeleton-image {
+            height: 220px;
+            background: #334155;
+            border-radius: 12px;
+            margin-bottom: 15px;
+        }
+
+        .skeleton-text {
+            height: 16px;
+            background: #334155;
+            border-radius: 4px;
+            margin-bottom: 10px;
+        }
+
+        .skeleton-text.short { width: 60%; }
+
+        .skeleton-button {
+            height: 45px;
+            background: #334155;
+            border-radius: 12px;
+            margin-top: 10px;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50%       { opacity: 0.5; }
+        }
+
+        .loading-spinner {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 40px 20px;
+        }
+
+        .spinner {
+
+width: 40px; height: 40px;
+            border: 4px solid rgba(99, 102, 241, 0.2);
+            border-top: 4px solid #6366f1;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0%   { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 80px 20px;
+            background: #1e293b;
+            border-radius: 20px;
+            margin: 20px auto;
+            max-width: 500px;
+            border: 1px solid #334155;
+        }
+
+        .empty-icon  { font-size: 64px; margin-bottom: 20px; opacity: 0.8; }
+        .empty-title { font-size: 24px; font-weight: 700; margin-bottom: 15px; color: #e2e8f0; }
+        .empty-desc  { font-size: 16px; color: #94a3b8; line-height: 1.5; }
+
+        .error-box {
+            text-align: center;
+            padding: 20px;
+            background: #dc2626;
+            border-radius: 12px;
+            margin: 0 auto 25px auto;
+            max-width: 500px;
+            border: 1px solid #b91c1c;
+            color: white;
+            display: none;
+        }
+
+        .error-box.show  { display: block; }
+        .error-box-title { font-size: 18px; font-weight: 700; margin-bottom: 8px; }
+        .error-box-desc  { font-size: 14px; color: #fecaca; line-height: 1.4; }
+
+        .telegram-popup {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100vw; height: 100vh;
+            background: rgba(0, 0, 0, 0.85);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 2500;
+        }
+
+        .popup-content {
+            background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+            border-radius: 20px;
+            padding: 40px 30px;
+            max-width: 400px;
+            width: 90%;
+            position: relative;
+            border: 2px solid #6366f1;
+            text-align: center;
+        }
+
+        .popup-close {
+            position: absolute;
+            top: 15px; right: 15px;
+            width: 35px; height: 35px;
+            background: rgba(51, 65, 85, 0.6);
+            border: none;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 18px;
+            color: #94a3b8;
+            transition: all 0.2s;
+        }
+
+        .popup-close:hover {
+            background: #334155;
+            color: #e2e8f0;
+        }
+
+        .popup-icon  { font-size: 48px; margin-bottom: 20px; }
+        .popup-title { font-size: 24px; font-weight: 800; color: #e2e8f0; margin-bottom: 12px; }
+        .popup-desc  { font-size: 16px; color: #94a3b8; margin-bottom: 30px; }
+
+        .telegram-btn {
+            background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%);
+            border: none;
+            border-radius: 15px;
+            padding: 15px 30px;
+            font-size: 16px;
+            font-weight: 700;
+            color: white;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .telegram-btn:hover {
+            background: linear-gradient(135deg, #4f46e5 0%, #3730a3 100%);
+            transform: translateY(-2px);
+        }
+
+        #mahapack-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: #0f172a;
+            z-index: 2000;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        #mahapack-overlay.open {
+            display: flex;
+        }
+
+        .mahapack-header {
+            position: relative;
+            height: 52px;
+            background: rgba(15, 23, 42, 0.97);
+            border-bottom: 1px solid rgba(30, 41, 59, 0.6);
+            display: flex;
+            align-items: center;
+            padding: 0 14px;
+            gap: 10px;
+            flex-shrink: 0;
+            z-index: 10;
+        }
+
+        .mahapack-header::after {
+            content: "";
+            position: absolute;
+            bottom: -1px; left: 0; right: 0;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, rgba(245, 158, 11, 0.5), transparent);
+        }
+
+        .mahapack-back-btn {
+            background: none;
+            border: none;
+            cursor: pointer;
+            padding: 4px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+
+flex-shrink: 0;
+            transition: transform 0.1s;
+        }
+
+        .mahapack-back-btn:active { transform: scale(0.9); }
+
+        .mahapack-back-btn svg {
+            width: 22px; height: 22px;
+            stroke: #f59e0b;
+            stroke-width: 2.5;
+            fill: none;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+        }
+
+        .mahapack-title {
+            font-size: clamp(14px, 4vw, 17px);
+            font-weight: 800;
+            color: #fff;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            flex: 1;
+        }
+
+        .mahapack-search-section {
+            padding: 12px 16px;
+            background: rgba(15, 23, 42, 0.97);
+            border-bottom: 1px solid rgba(30, 41, 59, 0.5);
+            flex-shrink: 0;
+        }
+
+        .mahapack-search-container {
+            position: relative;
+        }
+
+        .mahapack-search-box {
+            width: 100%;
+            padding: 10px 44px 10px 18px;
+            border: 2px solid #334155;
+            border-left: 4px solid #f59e0b;
+            border-radius: 25px;
+            font-size: 15px;
+            background: #1e293b;
+            color: #e2e8f0;
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+
+        .mahapack-search-box:focus {
+            border-color: #f59e0b;
+            box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.2);
+        }
+
+        .mahapack-search-box::placeholder { color: #64748b; }
+
+        .mahapack-search-icon {
+            position: absolute;
+            right: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 16px;
+            color: #f59e0b;
+            pointer-events: none;
+        }
+
+        .mahapack-scroll {
+            flex: 1;
+            overflow-y: auto;
+            padding: 20px;
+        }
+
+        .mahapack-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 20px;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .mahapack-empty {
+            grid-column: 1 / -1;
+            text-align: center;
+            padding: 60px 20px;
+            color: #64748b;
+        }
+
+        .mahapack-empty .icon {
+            font-size: 48px;
+            margin-bottom: 15px;
+        }
+
+        .mahapack-no-results {
+            text-align: center;
+            padding: 40px 20px;
+            color: #64748b;
+            font-size: 15px;
+        }
+
+        @media (max-width: 768px) {
+            .batches-grid {
+                grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+                gap: 20px;
+            }
+
+            .mahapack-grid {
+                grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+                gap: 16px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .batches-grid  { grid-template-columns: 1fr; }
+            .mahapack-grid { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="header">
+        <div class="site-brand">
+            <img src="/static/site_logo.png" style="width:28px;height:28px;border-radius:7px" alt="ASM">
+            <div class="brand-name">Mod Galaxy</div>
+        </div>
+        <div class="countdown-timer" id="countdownTimer">
+            ⏱ <span id="countdownTime">--:--:--</span>
+        </div>
+    </div>
+
+    <div class="search-section">
+        <div class="search-container">
+            <input
+                type="text"
+                class="search-box"
+                placeholder="Search batches..."
+                id="searchInput"
+                autocomplete="off"
+            >
+            <button class="search-btn" id="searchBtn">🔍</button>
+            <div class="autocomplete-dropdown" id="autocomplete"></div>
+        </div>
+    </div>
+
+    <div class="tab-navigation">
+        <div class="tab-nav">
+            <button class="tab-btn active" id="totalTab">Total Batches</button>
+            <button class="tab-btn" id="favouriteTab">Favourites</button>
+        </div>
+    </div>
+
+    <div class="content" id="content">
+        <div id="errorBox" class="error-box">
+            <div class="error-box-title" id="errorTitle"></div>
+            <div class="error-box-desc"  id="errorMessage"></div>
+        </div>
+        <div id="totalBatches"    class="batches-grid"></div>
+        <div id="favouriteBatches" class="batches-grid" style="display:none;"></div>
+
+<div id="loading"          class="loading-spinner" style="display:none;">
+            <div class="spinner"></div>
+        </div>
+    </div>
+
+    <div class="telegram-popup" id="telegramPopup">
+        <div class="popup-content">
+            <button class="popup-close" id="popupClose">✕</button>
+            <div class="popup-icon">📢</div>
+            <div class="popup-title">Join Mod Galaxy!</div>
+            <div class="popup-desc">Stay updated with latest study materials</div>
+            <button class="telegram-btn" id="popupJoin">Join Telegram Channel</button>
+        </div>
+    </div>
+
+    <div id="mahapack-overlay">
+        <div class="mahapack-header">
+            <button class="mahapack-back-btn" id="mahapackBackBtn">
+                <svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg>
+            </button>
+            <div class="mahapack-title" id="mahapackTitle"></div>
+        </div>
+        <div class="mahapack-search-section">
+            <div class="mahapack-search-container">
+                <input
+                    type="text"
+                    class="mahapack-search-box"
+                    placeholder="Search sub-batches..."
+                    id="mahapackSearchInput"
+                    autocomplete="off"
+                >
+                <span class="mahapack-search-icon">🔍</span>
+            </div>
+        </div>
+        <div class="mahapack-scroll">
+            <div class="mahapack-grid" id="mahapackGrid"></div>
+        </div>
+    </div>
+
+    <div id="resetKeyPopup" style="
+        display:none; position:fixed; inset:0;
+        background:rgba(0,0,0,0.85); align-items:center;
+        justify-content:center; z-index:3000;">
+        <div style="
+            background:linear-gradient(135deg,#1e293b,#0f172a);
+            border-radius:20px; padding:35px 28px; max-width:360px;
+            width:90%; position:relative; border:2px solid #ef4444; text-align:center;">
+            <button onclick="document.getElementById('resetKeyPopup').style.display='none'" style="
+                position:absolute; top:12px; right:12px; width:32px; height:32px;
+                background:rgba(51,65,85,0.6); border:none; border-radius:50%;
+                cursor:pointer; font-size:16px; color:#94a3b8;">✕</button>
+            <div style="font-size:40px; margin-bottom:15px;">🔑</div>
+            <div style="font-size:20px; font-weight:800; color:#e2e8f0; margin-bottom:10px;">Reset Session Key</div>
+            <div style="font-size:14px; color:#94a3b8; margin-bottom:25px; line-height:1.5;">
+                Your current session will be deleted and you'll need to generate a new key to continue.
+            </div>
+            <button onclick="resetKey()" style="
+                background:linear-gradient(135deg,#ef4444,#dc2626);
+                border:none; border-radius:12px; padding:13px 35px;
+                font-size:15px; font-weight:700; color:white; cursor:pointer;">
+                🔄 Reset Key
+            </button>
+        </div>
+    </div>
+
+    <script>
+        (function(){var e=localStorage.getItem('asm_access_expiry');if(!e||Date.now()>parseInt(e)){localStorage.removeItem('asm_access_expiry');window.location.href='/get-access';return;}})();
+        const SITE_THUMBNAIL = '/static/site_thumbnail.png';
+        let ALL_BATCHES       = [];
+        let DISPLAYED_BATCHES = [];
+        const BATCH_SIZE      = 10;
+
+        const state = {
+            loading:             false,
+            allBatchesLoaded:    false,
+            displayedCount:      0,
+            isSearchMode:        false,
+            searchQuery:         "",
+            highlightedIndex:    -1,
+            favourites:          [],
+            activeTab:           "total",
+            pendingSearch:       null,
+            waitingForData:      false,
+            currentMahapack:     null,
+            mahapackSearchQuery: ""
+        };
+
+        const el = {
+            menu:                document.getElementById("menu"),
+            overlay:             document.getElementById("overlay"),
+            searchInput:         document.getElementById("searchInput"),
+            autocomplete:        document.getElementById("autocomplete"),
+            content:             document.getElementById("content"),
+            totalBatches:        document.getElementById("totalBatches"),
+            favouriteBatches:    document.getElementById("favouriteBatches"),
+            loading:             document.getElementById("loading"),
+            errorBox:            document.getElementById("errorBox"),
+            errorTitle:          document.getElementById("errorTitle"),
+
+errorMessage:        document.getElementById("errorMessage"),
+            searchBtn:           document.getElementById("searchBtn"),
+            totalTab:            document.getElementById("totalTab"),
+            favouriteTab:        document.getElementById("favouriteTab"),
+            telegramPopup:       document.getElementById("telegramPopup"),
+            popupClose:          document.getElementById("popupClose"),
+            popupJoin:           document.getElementById("popupJoin"),
+            mahapackOverlay:     document.getElementById("mahapack-overlay"),
+            mahapackBackBtn:     document.getElementById("mahapackBackBtn"),
+            mahapackTitle:       document.getElementById("mahapackTitle"),
+            mahapackGrid:        document.getElementById("mahapackGrid"),
+            mahapackSearchInput: document.getElementById("mahapackSearchInput")
+        };
+
+        const cookieManager = {
+            get(name) {
+                const match = document.cookie.match(new RegExp(name + "=([^;]+)"));
+                return match ? JSON.parse(decodeURIComponent(match[1])) : null;
+            },
+            set(name, value) {
+                const date = new Date();
+                date.setTime(date.getTime() + 365 * 24 * 60 * 60 * 1000);
+                document.cookie = `${name}=${encodeURIComponent(JSON.stringify(value))};expires=${date.toUTCString()};path=/`;
+            },
+            getValue(name) {
+                const match = document.cookie.match(new RegExp(name + "=([^;]+)"));
+                return match ? match[1] : null;
+            }
+        };
+
+        const countdownManager = {
+            timer:      null,
+            expiryTime: null,
+
+            init() {
+                const v = cookieManager.getValue("session_expiry");
+                if (!v) return;
+                this.expiryTime = parseInt(v);
+                this.start();
+            },
+
+            formatTime(ms) {
+                if (ms <= 0) return "00:00:00";
+                const h = Math.floor(ms / 3600000);
+                const m = Math.floor((ms % 3600000) / 60000);
+                const s = Math.floor((ms % 60000) / 1000);
+                return [h, m, s].map(n => String(n).padStart(2, "0")).join(":");
+            },
+
+            updateDisplay() {
+                const timerEl = document.getElementById("countdownTimer");
+                const timeEl  = document.getElementById("countdownTime");
+                if (!this.expiryTime) { timerEl.classList.remove("show"); return; }
+                const remaining = this.expiryTime - Date.now();
+                if (remaining <= 0) { timeEl.textContent = "00:00:00"; this.stop(); return; }
+                timeEl.textContent = this.formatTime(remaining);
+                timerEl.classList.add("show");
+            },
+
+            start() {
+                if (!this.expiryTime) return;
+                this.updateDisplay();
+                this.timer = setInterval(() => this.updateDisplay(), 1000);
+            },
+
+            stop() {
+                if (this.timer) { clearInterval(this.timer); this.timer = null; }
+            }
+        };
+
+        const escapeHTML = (t) =>
+            (t || "").replace(/[&<>"']/g, m =>
+                ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#039;" }[m])
+            );
+
+        const normalizeText = (t) =>
+            (t || "").normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase().trim();
+
+        const tokenize = (t) =>
+            normalizeText(t).split(/\s+/).map(x => x.replace(/[^a-z0-9]+/g, "")).filter(Boolean);
+
+        function calcLevenshtein(a, b) {
+            if (!a.length) return b.length;
+            if (!b.length) return a.length;
+            let prev = Array(b.length + 1).fill(0).map((_, i) => i);
+            let curr = Array(b.length + 1);
+            for (let i = 0; i < a.length; i++) {
+                curr[0] = i + 1;
+                for (let j = 0; j < b.length; j++) {
+                    curr[j + 1] = Math.min(curr[j] + 1, prev[j + 1] + 1, prev[j] + (a[i] === b[j] ? 0 : 1));
+                }
+                [prev, curr] = [curr, prev];
+            }
+            return prev[b.length];
+        }
+
+        function highlightText(text, query) {
+            if (!query) return escapeHTML(text);
+            const matches = [];
+            query.trim().split(/\s+/).forEach(p => {
+                if (!p) return;
+
+const re = new RegExp(p.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"), "gi");
+                let m;
+                while ((m = re.exec(text)) !== null) {
+                    matches.push({ start: m.index, end: m.index + m[0].length });
+                }
+            });
+            matches.sort((a, b) => a.start - b.start);
+            const merged = [];
+            matches.forEach(m => {
+                if (!merged.length) {
+                    merged.push(m);
+                } else {
+                    const last = merged[merged.length - 1];
+                    if (m.start <= last.end) last.end = Math.max(last.end, m.end);
+                    else merged.push(m);
+                }
+            });
+            if (!merged.length) return escapeHTML(text);
+            let result = "", lastIdx = 0;
+            merged.forEach(m => {
+                result += escapeHTML(text.substring(lastIdx, m.start));
+                result += `<span class="autocomplete-highlight">${escapeHTML(text.substring(m.start, m.end))}</span>`;
+                lastIdx = m.end;
+            });
+            return result + escapeHTML(text.substring(lastIdx));
+        }
+
+        const showError = (title, msg) => {
+            el.errorTitle.textContent   = title;
+            el.errorMessage.textContent = msg;
+            el.errorBox.classList.add("show");
+        };
+
+        const hideError = () => el.errorBox.classList.remove("show");
+
+        const skeletonHTML = () => `
+            <div class="skeleton-card">
+                <div class="skeleton-title"></div>
+                <div class="skeleton-image"></div>
+                <div class="skeleton-text"></div>
+                <div class="skeleton-text short"></div>
+                <div class="skeleton-button"></div>
+            </div>
+        `;
+
+        const showSkeletonLoader = (count = 10) => Array(count).fill(skeletonHTML()).join("");
+
+        function renderPriceHTML(feeTotal) {
+            if (feeTotal === null || feeTotal === undefined || feeTotal === "") return "";
+            const fee = Number(feeTotal);
+            if (fee === 0) {
+                return `<div class="batch-price">💵 <span class="batch-price-free">₹0</span></div>`;
+            }
+            return `<div class="batch-price">
+                        💵
+                        <span class="batch-price-original">₹${escapeHTML(String(fee))}</span>
+                        <span class="batch-price-free">₹0</span>
+                    </div>`;
+        }
+
+        function buildBatchCard(batch, showFavBtn = true) {
+            const isMahapack = batch.type === "MAHAPACK";
+            const isFav      = state.favourites.includes(batch._id);
+
+            return `
+                <div class="batch ${isMahapack ? "mahapack" : ""}"
+                     data-id="${escapeHTML(batch._id)}"
+                     data-slug="${escapeHTML(batch.slug || "")}"
+                     data-name="${escapeHTML(batch.name || "")}"
+                     data-type="${escapeHTML(batch.type || "")}">
+
+                    ${showFavBtn ? `
+                        <button class="favorite-btn ${isFav ? "favorited" : ""}"
+                                data-batch-id="${escapeHTML(batch._id)}">
+                            ${isFav ? "❤️" : "🤍"}
+                        </button>
+                    ` : ""}
+
+                    ${isMahapack ? `<div class="mahapack-badge">📦 MAHAPACK</div>` : ""}
+
+                    <div class="batch-name">${escapeHTML(batch.name)}</div>
+
+                    <div class="batch-thumbnail">
+                        <img src="${escapeHTML(batch.previewImage || SITE_THUMBNAIL)}"
+                             alt="${escapeHTML(batch.name)}"
+                             loading="lazy"
+                             onerror="this.src=SITE_THUMBNAIL">
+                    </div>
+
+                    <div class="batch-info">
+                        ${batch.language ? `<div class="batch-language">${escapeHTML(batch.language)}</div>` : ""}
+                        ${batch.byName   ? `<div class="batch-byname">${escapeHTML(batch.byName)}</div>`   : ""}
+
+                        ${batch.startDate && batch.endDate ? `
+                            <div class="batch-dates">
+                                <div class="date-item">Start On ${escapeHTML(batch.startDate)}</div>
+                                <div class="date-item">End On ${escapeHTML(batch.endDate)}</div>
+                            </div>
+
+` : ""}
+
+                        ${renderPriceHTML(batch.feeTotal)}
+
+                        <button class="explore-btn">
+                            ${isMahapack ? "View Sub-Batches" : "Explore"}
+                        </button>
+                    </div>
+                </div>
+            `;
+        }
+
+        function performFuzzySearch(searchTerm, sourceArray) {
+            if (!searchTerm) return sourceArray.slice();
+            const normalized = normalizeText(searchTerm);
+            const tokens     = tokenize(searchTerm).filter(t => t.length >= 1);
+            const results    = [];
+
+            sourceArray.forEach((batch, idx) => {
+                const batchNorm = normalizeText(batch.name);
+                let score = 0, matchType = "none";
+
+                if (batchNorm === normalized) {
+                    score = 1000; matchType = "exact";
+                } else if (batchNorm.includes(normalized)) {
+                    score = 500; matchType = "substring";
+                } else {
+                    const batchTokens = tokenize(batch.name).filter(t => t.length >= 1);
+                    if (!batchTokens.length || !tokens.length) return;
+                    let totalScore = 0, matched = 0, exactMatches = 0;
+                    tokens.forEach(st => {
+                        let best = 0, foundExact = false;
+                        batchTokens.forEach(bt => {
+                            if (bt === st)                             { best = 100; foundExact = true; }
+                            else if (bt.includes(st) && st.length >= 2) best = Math.max(best, 85);
+                            else if (st.includes(bt) && bt.length >= 2) best = Math.max(best, 75);
+                            else {
+                                const mx  = Math.max(st.length, bt.length);
+                                const sim = ((mx - calcLevenshtein(st, bt)) / mx) * 100;
+                                if (sim > best) best = sim;
+                            }
+                        });
+                        if (best >= 40) { totalScore += best; matched++; if (foundExact) exactMatches++; }
+                    });
+                    if (matched > 0) {
+                        const avg        = totalScore / tokens.length;
+                        const matchRatio = matched / tokens.length;
+                        if (avg >= 55) {
+                            score = avg * matchRatio * 10;
+                            if (exactMatches > 0) score += exactMatches * 50;
+                            if (matchRatio === 1)  score += 100;
+                            matchType = "fuzzy";
+                        }
+                    }
+                }
+
+                if (matchType !== "none") {
+                    results.push({ batch, score: Math.round(score), index: idx, matchType });
+                }
+            });
+
+            results.sort((a, b) => {
+                if (a.matchType !== b.matchType) {
+                    const order = { exact: 0, substring: 1, fuzzy: 2 };
+                    return order[a.matchType] - order[b.matchType];
+                }
+                return b.score - a.score || a.index - b.index;
+            });
+
+            return results.map(r => r.batch);
+        }
+
+        function openMahapackOverlay(batch) {
+            state.currentMahapack        = batch;
+            state.mahapackSearchQuery    = "";
+            el.mahapackSearchInput.value = "";
+            el.mahapackTitle.textContent = batch.name;
+            renderMahapackGrid(batch.subBatches || []);
+            el.mahapackOverlay.classList.add("open");
+            document.body.style.overflow = "hidden";
+        }
+
+        function closeMahapackOverlay() {
+            el.mahapackOverlay.classList.remove("open");
+            document.body.style.overflow = "";
+            state.currentMahapack     = null;
+            state.mahapackSearchQuery = "";
+        }
+
+        function renderMahapackGrid(subBatches) {
+            el.mahapackGrid.innerHTML = "";
+
+            if (!subBatches.length) {
+                el.mahapackGrid.innerHTML = `
+                    <div class="mahapack-empty">
+                        <div class="icon">📦</div>
+                        <div>No sub-batches found in this Mahapack.</div>
+                    </div>
+                `;
+                return;
+            }
+
+            el.mahapackGrid.innerHTML = subBatches
+                .map(sub => buildBatchCard(sub, false))
+
+.join("");
+        }
+
+        let mahapackSearchTimeout;
+        el.mahapackSearchInput.oninput = () => {
+            clearTimeout(mahapackSearchTimeout);
+            mahapackSearchTimeout = setTimeout(() => {
+                const query = el.mahapackSearchInput.value.trim();
+                state.mahapackSearchQuery = query;
+                if (!state.currentMahapack) return;
+                const allSubs = state.currentMahapack.subBatches || [];
+                const results = query ? performFuzzySearch(query, allSubs) : allSubs;
+                if (!results.length && query) {
+                    el.mahapackGrid.innerHTML = `
+                        <div class="mahapack-no-results">
+                            🔍 No sub-batches found for "<strong>${escapeHTML(query)}</strong>"
+                        </div>
+                    `;
+                } else {
+                    renderMahapackGrid(results);
+                }
+            }, 250);
+        };
+
+        el.mahapackGrid.onclick = (e) => {
+            const favBtn = e.target.closest(".favorite-btn");
+            if (favBtn) {
+                e.stopPropagation();
+                toggleFavourite(favBtn.dataset.batchId);
+                return;
+            }
+            const batchEl = e.target.closest(".batch");
+            if (batchEl && !e.target.closest(".favorite-btn")) {
+                const batchId   = batchEl.dataset.id;
+                const batchName = batchEl.dataset.name;
+                if (batchId) {
+                    const params = new URLSearchParams({ batchId, batchName });
+                    window.location.href = "/subjects?" + params.toString();
+                }
+            }
+        };
+
+        el.mahapackBackBtn.onclick = closeMahapackOverlay;
+
+        function handleBatchClick(e) {
+            const favBtn = e.target.closest(".favorite-btn");
+            if (favBtn) {
+                e.stopPropagation();
+                toggleFavourite(favBtn.dataset.batchId);
+                return;
+            }
+            const batchEl = e.target.closest(".batch");
+            if (!batchEl || e.target.closest(".favorite-btn")) return;
+
+            const batchType = batchEl.dataset.type;
+            const batchId   = batchEl.dataset.id;
+            const batchName = batchEl.dataset.name;
+
+            if (batchType === "MAHAPACK") {
+                const batchData = ALL_BATCHES.find(b => b._id === batchId);
+                if (batchData) openMahapackOverlay(batchData);
+            } else {
+                if (batchId) {
+                    const params = new URLSearchParams({ batchId, batchName });
+                    window.location.href = "/subjects?" + params.toString();
+                }
+            }
+        }
+
+        el.totalBatches.onclick     = handleBatchClick;
+        el.favouriteBatches.onclick = handleBatchClick;
+
+        function onDataLoaded() {
+            if (state.pendingSearch) {
+                const t = state.pendingSearch;
+                state.pendingSearch = null;
+                performSearch(t);
+            }
+            if (state.activeTab === "favourite" && state.waitingForData) {
+                state.waitingForData = false;
+                renderFavourites();
+            }
+            if (el.searchInput.value.trim()) {
+                showAutocomplete(performFuzzySearch(el.searchInput.value.trim(), ALL_BATCHES));
+            }
+        }
+
+        function renderInitialBatches() {
+            state.loading = true;
+            el.totalBatches.innerHTML = showSkeletonLoader(10);
+
+            fetch("https://rarestudy.github.io/rarestudy/batches.json?v=" + Date.now())
+                .then(r => { if (!r.ok) throw new Error(`HTTP ${r.status}`); return r.json(); })
+                .then(data => {
+                    if (data.success && data.batches) {
+                        ALL_BATCHES            = data.batches;
+                        state.allBatchesLoaded = true;
+                        DISPLAYED_BATCHES      = ALL_BATCHES.slice(0, BATCH_SIZE);
+                        state.displayedCount   = BATCH_SIZE;
+                        renderBatches(DISPLAYED_BATCHES, true);
+                        onDataLoaded();
+                    } else {
+                        throw new Error("Invalid response");
+                    }
+                })
+                .catch(err => { console.error(err); handleLoadError(err); })
+                .finally(() => { state.loading = false; });
+        }
+
+function loadMoreBatches() {
+            if (state.loading || state.isSearchMode || state.displayedCount >= ALL_BATCHES.length) return;
+            const next = ALL_BATCHES.slice(state.displayedCount, state.displayedCount + BATCH_SIZE);
+            if (!next.length) return;
+            DISPLAYED_BATCHES     = [...DISPLAYED_BATCHES, ...next];
+            state.displayedCount += next.length;
+            renderBatches(next, false);
+        }
+
+        function handleLoadError(error) {
+            el.totalBatches.innerHTML = "";
+            if (error.message.includes("Failed to fetch")) {
+                showError("No Internet Connection", "Please check your connection and refresh.");
+            } else if (error.message.includes("HTTP")) {
+                showError("Server Error", "Server error occurred. Please refresh.");
+            } else {
+                showError("Failed to Load", "Unable to load batches. Please refresh.");
+            }
+        }
+
+        function renderBatches(batches, clear = false) {
+            hideError();
+            if (!batches.length && clear) {
+                showError("No Batches", "No batches available.");
+                return;
+            }
+            const html = batches.map(b => buildBatchCard(b, true)).join("");
+            if (clear) el.totalBatches.innerHTML = html;
+            else       el.totalBatches.insertAdjacentHTML("beforeend", html);
+        }
+
+        function renderFavourites() {
+            el.favouriteBatches.innerHTML = "";
+            hideError();
+
+            if (!state.favourites.length) {
+                el.favouriteBatches.style.display = "none";
+                showError("No Favourites", "Click the heart icon (🤍) on any batch to add it to favourites.");
+                return;
+            }
+
+            el.favouriteBatches.style.display = "grid";
+
+            if (!state.allBatchesLoaded) {
+                el.favouriteBatches.innerHTML = showSkeletonLoader(state.favourites.length);
+                state.waitingForData = true;
+                return;
+            }
+
+            const favBatches = state.favourites
+                .map(id => ALL_BATCHES.find(b => b._id === id))
+                .filter(Boolean);
+
+            if (!favBatches.length) {
+                el.favouriteBatches.style.display = "none";
+                showError("Failed to Load Favourites", "Unable to load your favourite batches. Please try again.");
+                return;
+            }
+
+            el.favouriteBatches.innerHTML = favBatches.map(b => buildBatchCard(b, true)).join("");
+        }
+
+        function showAutocomplete(batches) {
+            if (!batches.length) {
+                el.autocomplete.classList.remove("show");
+                return;
+            }
+            el.autocomplete.innerHTML = batches.map((batch, idx) => `
+                <div class="autocomplete-item ${idx === state.highlightedIndex ? "highlighted" : ""}"
+                     data-id="${escapeHTML(batch._id)}"
+                     data-name="${escapeHTML(batch.name)}">
+                    <div class="autocomplete-thumb-wrap">
+                        <img
+                            class="autocomplete-thumb"
+                            src="${escapeHTML(batch.previewImage || SITE_THUMBNAIL)}"
+                            alt=""
+                            loading="lazy"
+                            onerror="this.src=SITE_THUMBNAIL"
+                        >
+                    </div>
+                    <div class="autocomplete-info">
+                        <div class="autocomplete-name">${highlightText(batch.name, state.searchQuery)}</div>
+                        ${batch.byName ? `<div class="autocomplete-meta">${escapeHTML(batch.byName)}</div>` : ""}
+                    </div>
+                </div>
+            `).join("");
+            el.autocomplete.classList.add("show");
+            el.autocomplete.querySelectorAll(".autocomplete-item").forEach(item => {
+                item.onclick = () => {
+                    el.searchInput.value = item.dataset.name;
+                    el.autocomplete.classList.remove("show");
+                    state.searchQuery = item.dataset.name;
+                    performSearch(item.dataset.name);
+                };
+            });
+        }
+
+        function performSearch(term = null) {
+            if (term === null) term = el.searchInput.value.trim();
+            state.searchQuery = term;
+            el.autocomplete.classList.remove("show");
+
+hideError();
+            el.content.scrollTop = 0;
+
+            if (!state.allBatchesLoaded) {
+                state.pendingSearch = term;
+                el.totalBatches.innerHTML = showSkeletonLoader(3);
+                return;
+            }
+
+            if (!term) {
+                state.isSearchMode   = false;
+                state.pendingSearch  = null;
+                el.totalBatches.innerHTML = "";
+                state.displayedCount = BATCH_SIZE;
+                DISPLAYED_BATCHES    = ALL_BATCHES.slice(0, BATCH_SIZE);
+                renderBatches(DISPLAYED_BATCHES, true);
+                return;
+            }
+
+            state.isSearchMode = true;
+            const matched = performFuzzySearch(term, ALL_BATCHES);
+
+            if (!matched.length) {
+                el.totalBatches.innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-icon">🔍</div>
+                        <div class="empty-title">No Batches Found</div>
+                        <div class="empty-desc">Try searching with different keywords</div>
+                    </div>
+                `;
+            } else {
+                renderBatches(matched, true);
+            }
+        }
+
+        el.content.onscroll = () => {
+            if (state.loading || state.isSearchMode) return;
+            const { scrollTop, scrollHeight, clientHeight } = el.content;
+            if (scrollTop + clientHeight >= scrollHeight - 200) loadMoreBatches();
+        };
+
+        function toggleFavourite(batchId) {
+            state.favourites = state.favourites.includes(batchId)
+                ? state.favourites.filter(id => id !== batchId)
+                : [...state.favourites, batchId];
+
+            cookieManager.set("favourite_batches", state.favourites);
+
+            document.querySelectorAll(`[data-batch-id="${batchId}"]`).forEach(btn => {
+                if (state.favourites.includes(batchId)) {
+                    btn.classList.add("favorited");
+                    btn.textContent = "❤️";
+                } else {
+                    btn.classList.remove("favorited");
+                    btn.textContent = "🤍";
+                }
+            });
+
+            if (state.activeTab === "favourite") renderFavourites();
+        }
+
+        function switchTab(tab) {
+            state.activeTab     = tab;
+            state.searchQuery   = "";
+            state.isSearchMode  = false;
+            state.pendingSearch = null;
+            el.searchInput.value = "";
+            el.autocomplete.classList.remove("show");
+            el.totalTab.classList.toggle("active", tab === "total");
+            el.favouriteTab.classList.toggle("active", tab === "favourite");
+            hideError();
+
+            if (tab === "total") {
+                el.totalBatches.style.display     = "grid";
+                el.favouriteBatches.style.display = "none";
+            } else {
+                el.totalBatches.style.display = "none";
+                renderFavourites();
+            }
+        }
+
+        el.searchInput.onkeypress = (e) => {
+            if (e.key === "Enter") {
+                e.preventDefault();
+                if (state.highlightedIndex >= 0) {
+                    el.autocomplete.querySelector(".highlighted")?.click();
+                } else {
+                    performSearch();
+                }
+            }
+        };
+
+        el.searchInput.onkeydown = (e) => {
+            if (!el.autocomplete.classList.contains("show")) return;
+            const items = el.autocomplete.querySelectorAll(".autocomplete-item");
+            if (!items.length) return;
+
+            if (e.key === "ArrowDown") {
+                e.preventDefault();
+                items.forEach(i => i.classList.remove("highlighted"));
+                state.highlightedIndex = (state.highlightedIndex + 1) % items.length;
+                items[state.highlightedIndex].classList.add("highlighted");
+                items[state.highlightedIndex].scrollIntoView({ block: "nearest" });
+            } else if (e.key === "ArrowUp") {
+                e.preventDefault();
+                items.forEach(i => i.classList.remove("highlighted"));
+                state.highlightedIndex = state.highlightedIndex <= 0
+                    ? items.length - 1
+                    : state.highlightedIndex - 1;
+                items[state.highlightedIndex].classList.add("highlighted");
+                items[state.highlightedIndex].scrollIntoView({ block: "nearest" });
+
+} else if (e.key === "Escape") {
+                el.autocomplete.classList.remove("show");
+            }
+        };
+
+        let searchTimeout;
+        el.searchInput.oninput = () => {
+            clearTimeout(searchTimeout);
+            const val = el.searchInput.value.trim();
+
+            if (!val) {
+                el.autocomplete.classList.remove("show");
+                state.searchQuery   = "";
+                state.pendingSearch = null;
+                if (state.isSearchMode) {
+                    state.isSearchMode   = false;
+                    el.totalBatches.innerHTML = "";
+                    state.displayedCount = BATCH_SIZE;
+                    DISPLAYED_BATCHES    = ALL_BATCHES.slice(0, BATCH_SIZE);
+                    renderBatches(DISPLAYED_BATCHES, true);
+                }
+                return;
+            }
+
+            if (!state.allBatchesLoaded) { state.pendingSearch = val; return; }
+            searchTimeout = setTimeout(() => {
+                state.searchQuery = val;
+                showAutocomplete(performFuzzySearch(val, ALL_BATCHES));
+            }, 300);
+        };
+
+        el.searchInput.onfocus = () => {
+            if (el.searchInput.value.length && state.allBatchesLoaded) {
+                showAutocomplete(performFuzzySearch(el.searchInput.value, ALL_BATCHES));
+            }
+        };
+
+        document.onclick = (e) => {
+            if (!el.searchInput.contains(e.target) && !el.autocomplete.contains(e.target)) {
+                el.autocomplete.classList.remove("show");
+            }
+        };
+
+        el.searchBtn.onclick    = () => performSearch();
+        el.totalTab.onclick     = () => switchTab("total");
+        el.favouriteTab.onclick = () => switchTab("favourite");
+        el.popupClose.onclick   = () => { el.telegramPopup.style.display = "none"; };
+        el.popupJoin.onclick    = () => { el.telegramPopup.style.display = "none"; window.open("#", "_blank"); };
+
+        document.getElementById("countdownTimer").onclick = () => {
+            document.getElementById("resetKeyPopup").style.display = "flex";
+        };
+
+
+
+        function resetKey() {
+            window.location.href = "/reset-key";
+        }
+
+        function initialize() {
+            state.favourites = cookieManager.get("favourite_batches") || [];
+            renderInitialBatches();
+            el.telegramPopup.style.display = "flex";
+            countdownManager.init();
+        }
+
+        document.addEventListener("DOMContentLoaded", initialize);
+
+
+    </script>
+
+<script defer src="https://static.cloudflareinsights.com/beacon.min.js/v833ccba57c9e4d2798f2e76cebdd09a11778172276447" integrity="sha512-57MDmcccJXYtNnH+ZiBwzC4jb2rvgVCEokYN+L/nLlmO8rfYT/gIpW2A569iJ/3b+0UEasghjuZH/ma3wIs/EQ==" data-cf-beacon='{"version":"2024.11.0","token":"d791bbf0a81b4e638ace830305588120","r":1,"server_timing":{"name":{"cfCacheStatus":true,"cfEdge":true,"cfExtPri":true,"cfL4":true,"cfOrigin":true,"cfSpeedBrain":true},"location_startswith":null}}' crossorigin="anonymous"></script>
+
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'a0927b408bb0ccb8',t:'MTc4MTAzMjY5OA=='};var a=document.createElement('script');a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>
+
